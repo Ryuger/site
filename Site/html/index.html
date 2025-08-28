@@ -1,0 +1,1036 @@
+
+<!DOCTYPE html>
+<html lang="en" data-theme="dark"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Certex VPN</title>
+  <head>
+  <style>
+    @font-face {
+      font-family: 'JetBrains Mono';
+      src: url('fonts/JetBrainsMono-Regular.ttf') format('truetype');
+      font-weight: 400;
+    }
+
+    @font-face {
+      font-family: 'JetBrains Mono';
+      src: url('fonts/JetBrainsMono-Bold.ttf') format('truetype');
+      font-weight: 700;
+    }
+    :root {
+      --bg-color: #000;
+      --text-color: #fff;
+      --title-color: #f4f4f5;
+      --quote-color: rgba(255,255,255,0.75);
+      --card-bg: #1e1e2a;
+      --card-text: #f0f0f0;
+      --border-color: #555;
+      --success-color: #22c55e;
+      --cursor-color: #fff;
+      --typing-text-color: #fff;
+      --typing-bg: rgba(255,255,255,0.1);
+      --transition-duration: 0.6s;
+      --transition-delay: 0s;
+      --description-color: #ffffff;
+      --meta-info-color: #ffffff;
+      --card-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+      --btn-bg: #3b3b95;
+      --btn-text: #fff;
+      --btn-hover-bg: #5b5bdc;
+      --btn-hover-shadow: 0 0 10px rgba(80, 80, 200, 0.6);
+    }
+
+    :root[data-theme="light"] {
+      --bg-color: #ffffff;
+      --text-color: #000;
+      --title-color: #000;
+      --quote-color: rgba(10, 9, 9, 0.75);
+      --card-bg: hsl(0, 0%, 92%);
+      --card-text: #000;
+      --border-color: #111;
+      --success-color: #15803d;
+      --cursor-color: #000;
+      --typing-text-color: #000;
+      --typing-bg: rgba(0,0,0,0.05);
+      --description-color: #080808;
+      --meta-info-color: #000000;
+      --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      --btn-bg: #d6d8ff;
+      --btn-text: #111;
+      --btn-hover-bg: #b3b5ff;
+      --btn-hover-shadow: 0 0 10px rgba(100, 100, 255, 0.4);
+    }
+
+    html {
+      height: 100%;             
+      width: 100%;          
+      overflow-x: hidden;     
+      scroll-behavior: smooth;  
+    }
+
+    body {
+      min-height: 100vh;         /* Минимум на высоту экрана — позволяет скролл */
+      margin: 0;
+      padding: 0;
+      position: relative;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+      font-size: 16px;
+      box-sizing: border-box;
+      overflow-x: hidden;
+      overflow-y: auto;
+      transition: none !important;
+    }
+
+    #ui-scale {
+      width: 1920px;
+      height: 1080px;
+      transform-origin: top left;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+    /*глобус на заднике*/
+    #vanta-bg {
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      z-index: 0 !important;
+      pointer-events: none !important;
+    }
+    /* Утилиты */
+    .flex { display: flex; }
+    .flex-col { flex-direction: column; }
+    .items-center { align-items: center; }
+    .gap-5 { gap: 1.5rem; }
+    .absolute { position: absolute; }
+    .top-2\/4 { top: 50%; }
+    .left-1\/2 { left: 50%; }
+    .-translate-1\/2 { transform: translate(-50%, -50%); }
+    .z-50 { z-index: 50; }
+    .w-60 { width: 15rem; }
+    .py-5 { padding-top: 1.25rem; padding-bottom: 1.25rem; }
+    .px-4 { padding-left: 1rem; padding-right: 1rem; }
+    .rounded-4xl { border-radius: 2rem; }
+    .overflow-hidden { overflow: hidden; }
+    .scale-150 { transform: scale(1.5); }
+    .hover\:scale-160:hover { transform: scale(1.6); }
+    .duration-200 {
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+    /* Заголовок */
+    h1 {
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: var(--title-color);
+      text-align: center;
+      margin: 0 auto 2rem auto;
+      max-width: 900px;
+      letter-spacing: 0.01em;
+      transition: color var(--transition-duration) ease;
+    }
+    @media (min-width: 768px) { h1 { font-size: 3.5rem; } }
+
+    /* Цветовые классы */
+    .bg-white { background: var(--card-bg); }
+    .text-black { color: var(--card-text); }
+    .border { border: 1.5px solid var(--border-color); }
+    .shadow-lg { box-shadow: 0 8px 32px 0 rgba(255,255,255,0.15); }
+    .shadow-white\/30 { box-shadow: 0 2px 16px 0 rgba(255,255,255,0.3); }
+    .hover\:shadow-white\/50:hover { box-shadow: 0 2px 24px 0 rgba(255,255,255,0.5); }
+
+    /* Scramble */
+    #scrambleText {
+      font-size: 1.2rem;
+      font-family: 'Fira Mono', 'Consolas', monospace;
+      letter-spacing: 0.05em;
+      user-select: none;
+      display: inline-block;
+      margin-right: 2.5rem;
+    }
+
+    #toggleBtn {
+      position: absolute;
+      top: 50%;
+      right: 0.5rem;
+      transform: translateY(-50%);
+      border: 1px solid var(--border-color);
+      height: 2.2rem;
+      width: 2.2rem;
+      background: #111;
+      color: #fff;
+      border-radius: 50%;
+      font-size: 0.7rem;
+      cursor: pointer;
+      transition: background var(--transition-duration), box-shadow var(--transition-duration), transform var(--transition-duration);
+      outline: none;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    #toggleBtn:hover { background: #222; }
+
+
+    a.fixed {
+      position: fixed;
+      top: 2.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 100;
+      width: fit-content;
+    }
+    a img {
+      width: 3.5rem;
+      height: auto;
+      mix-blend-mode: difference;
+      transition: transform 0.25s;
+    }
+    a img:hover {
+      transform: scale(1.05) rotate(5deg);
+    }
+
+    /* Software Cards */
+    .software-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+      margin: 2.5rem 0 0 2rem;
+      padding: 0 2rem 5rem 0;
+      max-width: 1200px;
+      justify-content: start;
+    }
+
+    .software-grid.three-columns {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+
+    .columns-toggle {
+      position: fixed;
+      top: 80px;
+      right: 30px;
+      z-index: 1000;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 8px 12px;
+      color: var(--text-color);
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .columns-toggle:hover {
+      background: var(--btn-hover-bg);
+    }
+
+    .software-card {
+      background: var(--card-bg);
+      border-radius: 0.625rem;
+      box-shadow: var(--card-shadow);
+      padding: 1.25rem 1.5rem;
+      color: var(--card-text);
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      position: relative;
+      min-height: 150px; 
+      transition: box-shadow var(--transition-duration) ease, transform var(--transition-duration) ease;
+    }
+
+    .software-card h2 {
+      font-size: 2rem; 
+      white-space: nowrap;
+      font-weight: 700;
+      margin: 0 0 0.3rem 0;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: var(--card-text);
+      text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+    }
+
+    @media (max-width: 768px) {
+      .software-grid {
+        grid-template-columns: 1fr;
+        margin: 2.5rem 1rem 0 1rem;
+        padding: 0 1rem 5rem 0;
+      }
+      
+      .software-grid.three-columns {
+        grid-template-columns: 1fr;
+      }
+      
+      .columns-toggle {
+        right: 10px;
+        top: 70px;
+      }
+    }
+
+    .software-card p {
+      margin: 0 0 0.15rem 0;
+      font-size: 1.5rem;  
+      font-weight: 400;
+      color: var(--card-text);
+      text-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
+    }
+
+    .software-card p.version-info,
+    .software-card p.filesize-info {
+      color: var(--meta-info-color);
+      opacity: 0.7;
+      font-style: italic;
+      font-size: 1.5rem; 
+      transition: color var(--transition-duration);
+    }
+
+    .software-card p.description {
+      color: var(--description-color);
+      font-size: 1.5rem;
+      line-height: 1.6;  
+      font-weight: 400;
+      margin-bottom: 0.2rem;
+      transition: color var(--transition-duration);
+    }
+
+    .download-btn {
+      font-size: 1.4rem; 
+      background: linear-gradient(to bottom, var(--btn-bg), darken(var(--btn-bg), 10%));
+      color: var(--btn-text);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      padding: 0.6rem 1rem;
+      border-radius: 0.4rem;
+      text-decoration: none;
+      font-weight: 600;
+      box-shadow: 0 0 8px rgba(58, 58, 90, 0.7);
+      transition: background-color var(--transition-duration), color var(--transition-duration), box-shadow var(--transition-duration);
+    }
+
+    .download-btn:hover {
+      background-color: var(--btn-hover-bg);
+      box-shadow: var(--btn-hover-shadow);
+    }
+    .progress-container {
+      background: rgba(200,200,200,0.2);
+      height: 6px;
+      border-radius: 4px;
+      overflow: hidden;
+      width: 100%;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: #1e40af;
+      transition: width 0.3s ease;
+    }
+    .progress-text {
+      font-size: 0.9rem;
+      margin: 0;
+      overflow: hidden;
+      white-space: nowrap;
+      position: relative;
+      color: #555;
+      font-style: italic;
+      font-weight: 600;
+    }
+
+    @keyframes checkmark {
+      0% {
+        stroke-dashoffset: 24;
+        opacity: 0;
+      }
+      60% {
+        stroke-dashoffset: 0;
+        opacity: 1;
+      }
+      100% {
+        stroke-dashoffset: 0;
+        opacity: 1;
+      }
+    }
+
+    .checkmark {
+      width: 20px;
+      height: 20px;
+      display: none;
+      margin-left: 8px;
+    }
+
+    .checkmark path {
+      stroke: #22c55e;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-dasharray: 24;
+      stroke-dashoffset: 24;
+      fill: none;
+    }
+
+    .checkmark.animate path {
+      animation: checkmark 0.8s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+    }
+
+    @keyframes dots {
+      0% { content: '.  '; }
+      16.66% { content: '.. '; }
+      33.33% { content: '...'; }
+      50% { content: ' ..'; }
+      66.66% { content: '  .'; }
+      83.33% { content: '   '; }
+      100% { content: '.  '; }
+    }
+
+    .loading-text {
+      display: inline-flex;
+      align-items: center;
+      vertical-align: right;
+      color: #666;
+      font-weight: 600;
+      font-style: italic;
+      font-size: 1.4rem;
+    }
+
+    .loading-text::after {
+      content: '';
+      display: inline-block;
+      width: 1em;
+      text-align: left;
+      animation: dots 1.2s steps(4, end) infinite;
+    }
+
+    @keyframes marquee {
+      0% { left: 100%; }
+      100% { left: -100%; }
+    }
+    .progress-text.marquee span {
+      position: absolute;
+      left: 100%;
+      animation: marquee 4s linear infinite;
+    }
+    
+    section {
+      background: transparent !important;
+      box-shadow: none !important;
+    }
+    .theme-toggle {
+      position: fixed;
+      top: 30px;
+      right: 30px;
+      z-index: 1000;
+      width: 64px;
+      height: 32px;
+      border: none;
+      border-radius: 50px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      cursor: pointer;
+
+      box-shadow: 
+        0 8px 32px rgba(102, 126, 234, 0.3),
+        inset 0 2px 4px rgba(255, 255, 255, 0.1);
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .theme-toggle:hover {
+      box-shadow: 
+        0 12px 40px rgba(102, 126, 234, 0.4),
+        inset 0 2px 4px rgba(255, 255, 255, 0.2);
+    }
+
+    .theme-toggle:active {
+      transition: all 0.1s ease;
+    }
+
+    .theme-toggle::before {
+      content: '🌙';
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      width: 24px;
+      height: 24px;
+      background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+      border-radius: 50%;
+      transition: all 0.6s cubic-bezier(0.23, 1, 0.320, 1);
+      box-shadow: 
+        0 4px 12px rgba(0, 0, 0, 0.15),
+        inset 0 1px 2px rgba(255, 255, 255, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+    }
+
+    .theme-toggle::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+      transform: translateX(-100%);
+      transition: transform 0.6s ease;
+      pointer-events: none;
+    }
+
+    .theme-toggle:hover::after {
+      transform: translateX(100%);
+    }
+
+    :root[data-theme="dark"] .theme-toggle {
+      background: linear-gradient(135deg, #d3d3d3 0%, #918787 100%);
+      box-shadow: 
+        0 8px 32px rgba(42, 42, 59, 0.4),
+        inset 0 2px 4px rgba(255, 255, 255, 0.05);
+    }
+
+    :root[data-theme="dark"] .theme-toggle:hover {
+      box-shadow: 
+        0 12px 40px rgba(42, 42, 59, 0.5),
+        inset 0 2px 4px rgba(255, 255, 255, 0.1);
+    }
+
+    :root[data-theme="dark"] .theme-toggle::before {
+      content: '☀️';
+      transform: translateX(32px);
+      background: linear-gradient(135deg, #2a2a3b 0%, #16213e 100%);
+      box-shadow: 0 
+        0 4px 12px rgba(0, 0, 0, 0.3),
+        inset 0 1px 2px rgba(255, 255, 255, 0.1);
+    }
+
+    :root[data-theme="light"] .theme-toggle {
+      background: linear-gradient(135deg, #524b9ee0, #2a2a3b);
+      box-shadow:
+        0 8px 32px rgba(252, 182, 159, 0.3),
+        inset 0 2px 4px rgba(240, 239, 239, 0.2);
+    }
+
+    :root[data-theme="light"] .theme-toggle:hover {
+      box-shadow:
+        0 4px 12px rgba(255, 242, 98, 0.3),
+        inset 0 1px 2px rgba(166, 173, 255, 0.1);
+    }
+
+    /* Заголовок с эффектом печати */
+    .typing-text {
+      font-size: 5rem;
+      font-weight: normal;
+      color: var(--typing-text-color);
+      font-family: 'JetBrains Mono', monospace;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: color var(--transition-duration);
+      user-select: none;
+      pointer-events: none;
+      position: relative;
+      z-index: 10;
+    }
+
+    @media (min-width: 768px) {
+      .typing-text {
+        font-size: 5rem;
+      }
+    }
+
+    .typing-text .typing-cursor {
+      display: inline-block;
+      width: 2px;
+      height: 3.5rem;
+      background-color: var(--cursor-color);
+      margin-left: 4px;
+      animation: blink 0.7s steps(2) infinite;
+      transition: background-color var(--transition-duration);
+    }
+
+    .typing-text.highlight {
+      font-weight: bold;
+      color: var(--typing-text-color);
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Checkmark */
+    .checkmark path {
+      stroke: var(--success-color);
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-dasharray: 24;
+      stroke-dashoffset: 24;
+      fill: none;
+    }
+    .checkmark.animate path {
+      animation: checkmark 0.8s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+    }
+
+    .site-footer {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 100;
+      pointer-events: none;
+      transform-origin: bottom right;
+    }
+
+    .iperf-link {
+      pointer-events: auto;
+      font-size: 1.7rem;
+      color: var(--text-color);
+      text-decoration: none;
+      padding: 0.25rem 0.5rem;
+      background: transparent;
+      transition: opacity 0.2s ease;
+    }
+    .iperf-link:hover {
+      opacity: 0.85;
+      text-decoration: underline;
+      color: #4db7fd;
+    }
+  </style>
+  </head>
+  <body>
+    <div id="vanta-bg"></div>
+    <button class="theme-toggle" id="themeToggle"></button>
+    <button class="columns-toggle" id="columnsToggle">2 колонки</button>
+    <div id="ui-scale">
+    <section class="relative w-full text-xs font-semibold bg-transparent text-white/30">
+      <div class="typing-header" style="text-align: center; margin-bottom: 5rem; margin-top: 5rem; height: 6rem;">
+        <div style="height: 4rem; display: flex; align-items: center; justify-content: center;">
+          <div class="typing-text highlight" id="typingText">АО 'НИТ'<span class="typing-cursor"></span></div>
+        </div>
+      </div>
+      <div class="absolute top-2/4 left-1/2 -translate-1/2 z-50 flex flex-col items-center gap-5">
+      </div>
+      <div class="software-grid" id="software-list">
+        <!-- Список программ -->
+      </div>
+    </section>
+
+    <script>
+      // Theme toggle functionality
+      const themeToggle = document.getElementById('themeToggle');
+      const columnsToggle = document.getElementById('columnsToggle');
+      const root = document.documentElement;
+      const body = document.body;
+
+      // always use dark as default
+      const savedTheme = localStorage.getItem('theme');
+      const initialTheme = savedTheme !== null ? savedTheme : 'dark';
+      root.setAttribute('data-theme', initialTheme);
+
+      // Columns toggle functionality
+      let currentColumns = parseInt(localStorage.getItem('columns') || '2');
+      
+      function updateColumnsDisplay() {
+        const softwareGrid = document.getElementById('software-list');
+        columnsToggle.textContent = `${currentColumns} колонки`;
+        
+        if (currentColumns === 3) {
+          softwareGrid.classList.add('three-columns');
+        } else {
+          softwareGrid.classList.remove('three-columns');
+        }
+        
+        localStorage.setItem('columns', currentColumns.toString());
+      }
+
+      columnsToggle.addEventListener('click', () => {
+        currentColumns = currentColumns === 2 ? 3 : 2;
+        updateColumnsDisplay();
+      });
+
+      // Initialize columns display
+      updateColumnsDisplay();
+
+      // Плавный переход темы (исправлено)
+      themeToggle.addEventListener('click', () => {
+        const currentTheme = root.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+        // 1. Убираем transition, чтобы не мигало при применении темы
+        body.classList.remove('theme-transition');
+
+        // 2. Применяем тему мгновенно
+        root.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+
+        // 3. Принудительно применим фон (на случай задержки CSS переменных)
+        document.body.style.backgroundColor = newTheme === 'dark' ? '#000' : '#fff';
+
+        // 4. На следующем кадре — возвращаем анимацию
+        requestAnimationFrame(() => {
+          body.classList.add('theme-transition');
+        });
+      });
+
+      // Typing effect for header
+      class TypingEffect {
+        constructor() {
+          this.texts = ["АО 'НИТ'", "CERTEX VPN Client Hub"];
+          this.currentTextIndex = 0;
+          this.currentCharIndex = 0;
+          this.isDeleting = false;
+          this.isHighlighted = false;
+          this.typingSpeed = () => Math.random() * 200 + 100;
+          this.deletingSpeed = 80;
+          this.highlightDuration = 3000;
+          this.pauseDuration = 1000;
+          
+          this.textElement = document.getElementById('typingText');
+          this.cursor = document.createElement('span');
+          this.cursor.style.cssText = `
+            display: inline-block;
+            width: 2px;
+            height: 3.5rem;
+            background-color: var(--cursor-color);
+            transition: background-color var(--transition-duration) ease;
+            margin-left: 4px;
+            animation: blink 0.7s steps(2) infinite;
+          `;
+          
+          // Add blink animation
+          const style = document.createElement('style');
+          style.textContent = `
+            @keyframes blink {
+              0% { opacity: 1; }
+              100% { opacity: 0; }
+            }
+
+            .typing-text {
+              box-sizing: border-box;
+              min-width: 200px;
+              text-align: center;
+              position: relative;
+              margin: 0;
+            }
+
+            .typing-text.highlight {
+              font-weight: bold;
+            }
+
+            .typing-text.highlight::before {
+              content: '';
+              position: absolute;
+              top: 50%;
+              left: 50%;
+              transform: translate(-50%, -50%);
+              width: calc(100% + 2rem);
+              height: calc(100% + 1rem);
+              background: var(--typing-bg);
+              border-radius: 8px;
+              box-shadow: 0 0 20px rgba(150, 150, 150, 0.6);
+              z-index: -1;
+              transition: background var(--transition-duration), box-shadow var(--transition-duration);
+            }
+
+            .typing-text.highlight {
+              color: var(--typing-text-color);
+            }
+
+            :root[data-theme="dark"] .typing-text.highlight::before {
+              background: var(--typing-bg);
+              box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+            }
+          `;
+          document.head.appendChild(style);
+          
+          this.textElement.appendChild(this.cursor);
+          this.start();
+        }
+
+        start() {
+          this.type();
+        }
+
+        type() {
+          const currentText = this.texts[this.currentTextIndex];
+          
+          if (!this.isDeleting && !this.isHighlighted) {
+            if (this.currentCharIndex < currentText.length) {
+              const displayText = currentText.substring(0, this.currentCharIndex + 1);
+              this.textElement.textContent = displayText;
+              this.textElement.appendChild(this.cursor);
+              this.currentCharIndex++;
+              setTimeout(() => this.type(), this.typingSpeed());
+            } else {
+              this.highlight();
+            }
+          } else if (this.isHighlighted) {
+            setTimeout(() => {
+              this.isHighlighted = false;
+              this.isDeleting = true;
+              this.textElement.classList.remove('highlight');
+              this.type();
+            }, this.highlightDuration);
+          } else if (this.isDeleting) {
+            if (this.currentCharIndex > 0) {
+              const displayText = currentText.substring(0, this.currentCharIndex - 1);
+              this.textElement.textContent = displayText;
+              this.textElement.appendChild(this.cursor);
+              this.currentCharIndex--;
+              setTimeout(() => this.type(), this.deletingSpeed);
+            } else {
+              this.isDeleting = false;
+              this.currentTextIndex = (this.currentTextIndex + 1) % this.texts.length;
+              setTimeout(() => this.type(), this.pauseDuration);
+            }
+          }
+        }
+
+        highlight() {
+          this.textElement.classList.add('highlight');
+          this.isHighlighted = true;
+          this.type();
+        }
+      }
+
+      // Start typing effect
+      new TypingEffect();
+      // Форматирование размера файла
+      function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Б';
+        const units = ['Б', 'КБ', 'МБ', 'ГБ'];
+        let size = bytes;
+        let unitIndex = 0;
+        while (size >= 1024 && unitIndex < units.length - 1) {
+          size /= 1024;
+          unitIndex++;
+        }
+        return `${size.toFixed(1)} ${units[unitIndex]}`;
+      }
+
+      // Загрузка JSON с принудительным обновлением (без кеша)
+      fetch('software.json?' + new Date().getTime())
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then(data => {
+          const softwareList = document.getElementById('software-list');
+          data.software.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'software-card';
+            card.innerHTML = `
+              <h2>
+                ${item.icon ? `<img src="${item.icon}" class="icon" alt="icon">` : '<span class="icon">📦</span>'}
+                ${item.name}
+              </h2>
+              <p class="version-info">Версия: ${item.version}</p>
+              <p class="description">${item.description}</p>
+              <p class="filesize-info">Размер: ${formatFileSize(item.fileSize)}</p>
+              <div style="display: flex; justify-content: flex-end; align-items: center; gap: 0.5rem;">
+                <span class="loading-text" style="display: none; white-space: nowrap; margin-right: auto;">Получение данных</span>
+                <a href="${item.downloadLink}" style="margin-left: auto;" class="download-btn" data-url="${item.downloadLink}">Скачать</a>
+                <span class="progress-text" style="min-width: 38px; text-align: right; display: none; color: #1e40af;">0%</span>
+                <svg class="checkmark" viewBox="0 0 24 24">
+                  <path d="M20 6L9 17l-5-5"/>
+                </svg>
+              </div>
+            <div class="progress-container" id="progress-${item.name}" style="display: none;">
+              <div class="progress-fill"></div>
+            </div>
+            `;
+            softwareList.appendChild(card);
+          });
+
+          // Обработчик кнопок скачивания
+          document.querySelectorAll('.download-btn').forEach(button => {
+            button.addEventListener('click', (e) => {
+              e.preventDefault();
+              const url = button.getAttribute('data-url');
+              const wrapper = button.parentElement;
+              const progressText = wrapper.querySelector('.progress-text');
+              const progressContainer = button.closest('.software-card').querySelector('.progress-container');
+              const progressFill = progressContainer.querySelector('.progress-fill');
+              const loadingText = wrapper.querySelector('.loading-text');
+              const checkmark = wrapper.querySelector('.checkmark');
+
+              // Сброс UI
+              wrapper.style.justifyContent = 'flex-end';
+              button.style.visibility = 'hidden';
+              loadingText.textContent = 'OK';
+              loadingText.style.display = 'inline-flex';
+              loadingText.style.color = '';
+              progressText.style.display = 'inline-block';
+              progressText.textContent = '';
+              progressContainer.style.display = 'block';
+              progressFill.style.width = '0%';
+              progressFill.style.background = '#1e40af';
+              checkmark.style.display = 'none';
+              checkmark.classList.remove('animate');
+
+              // HEAD-проверка
+              fetch(url, { method: 'HEAD' }).then(response => {
+                if (!response.ok) {
+                  loadingText.textContent = 'Ошибка';
+                  loadingText.style.color = '#d73a49';
+                  progressText.style.display = 'none';
+                  progressContainer.style.display = 'none';
+                  progressFill.style.width = '0%';
+                  progressFill.style.background = '#d73a49';
+                  button.style.visibility = 'visible';
+                  return;
+                }
+                // Успешно: скачать напрямую
+                loadingText.style.display = 'none';
+                progressText.style.display = 'none';
+                progressContainer.style.display = 'none';
+                progressFill.style.width = '0%';
+                button.style.visibility = 'visible';
+                const a = document.createElement('a');
+                a.href = url;
+                a.setAttribute('download', '');
+                a.style.display = 'none';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+              }).catch(() => {
+                loadingText.textContent = 'Ошибка сети';
+                loadingText.style.color = '#d73a49';
+                progressText.style.display = 'none';
+                progressContainer.style.display = 'none';
+                progressFill.style.width = '0%';
+                progressFill.style.background = '#d73a49';
+                button.style.visibility = 'visible';
+              });
+            });
+          });
+        })
+        .catch(error => console.error('Ошибка загрузки JSON:', error));
+    </script>
+
+  
+<canvas id="overlay" style="position: fixed; top: 0px; left: 0px; width: 1528px; height: 708px; pointer-events: none; z-index: 1000;" width="1910" height="885"></canvas>    
+
+<script src="./444_files/three.min.js.загрузка"></script>
+<script src="./444_files/vanta.globe.min.js.загрузка"></script>
+<script>
+  let vantaEffect;
+
+  function initVanta(theme) {
+    if (vantaEffect) vantaEffect.destroy();
+    vantaEffect = VANTA.GLOBE({
+      el: "#vanta-bg",
+      mouseControls: false,
+      touchControls: false,
+      gyroControls: false,
+      showDots: false,
+      minHeight: 200,
+      minWidth: 200,
+      scale: 1,
+      size: 1.4,
+      spacing: 20,
+      scaleMobile: 1.2,
+      color: theme === "dark" ? 0x3fbfff : 0x2dcf,
+      color2: theme === "dark" ? 0xffffff : 0xb0ff,
+      backgroundColor: theme === "dark" ? 0x000000 : 0xffffff,
+      points: 0
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    if (window.VANTA && VANTA.GLOBE) {
+      const theme = document.documentElement.getAttribute("data-theme") || "light";
+      initVanta(theme);
+    } else {
+      console.error("VANTA не загружен — убедитесь, что three.min.js и vanta.globe.min.js подключены до вызова.");
+    }
+  });
+
+  document.getElementById("themeToggle").addEventListener("click", () => {
+    const newTheme = document.documentElement.getAttribute("data-theme");
+    if (window.VANTA && VANTA.GLOBE) {
+      initVanta(newTheme);
+    }
+  });
+
+function waitForVantaReady(callback) {
+  if (window.VANTA && typeof VANTA.GLOBE === "function") {
+    callback();
+  } else {
+    waitForVantaReady(() => {initVanta(currentTheme);});
+  }
+}
+
+waitForVantaReady(() => {
+  const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+  initVanta(currentTheme);
+});
+</script>
+<script>
+  (function () {
+    const BASE_WIDTH = 1920;
+    const BASE_HEIGHT = 1080;
+
+    function updateScale() {
+      const container = document.getElementById('ui-scale');
+      if (!container) return;
+
+      const scaleX = window.innerWidth / BASE_WIDTH;
+      const scaleY = window.innerHeight / BASE_HEIGHT;
+      const scale = Math.min(scaleX, scaleY);
+
+      const offsetX = (window.innerWidth - BASE_WIDTH * scale) / 2;
+      const offsetY = (window.innerHeight - BASE_HEIGHT * scale) / 2;
+
+      container.style.transform = `scale(${scale})`;
+      container.style.left = `${offsetX}px`;
+      container.style.top = `${offsetY}px`;
+      
+      const footer = document.querySelector('.site-footer');
+      if (footer) {
+        footer.style.transform = `scale(${scale})`;
+        footer.style.transformOrigin = 'bottom right';
+
+        // позиция из "виртуального интерфейса"
+        const virtualRight = 20;// футер в 1920×1080 был бы right: 20px
+        const virtualBottom = 20;  // футер в 1920×1080 был бы bottom: 20px
+
+        footer.style.right = `${virtualRight * scale + offsetX}px`;
+        footer.style.bottom = `${virtualBottom * scale + offsetY}px`;
+      }
+      
+      const toggle = document.querySelector('.theme-toggle');
+      if (toggle) {
+        toggle.style.transform = `scale(${scale})`;
+        toggle.style.transformOrigin = 'top right';
+
+        const virtualRight = 30; // координаты в 1920×1080
+        const virtualTop = 30;
+
+        toggle.style.right = `${virtualRight * scale + offsetX}px`;
+        toggle.style.top = `${virtualTop * scale + offsetY}px`;
+      }
+    }
+
+    window.addEventListener('resize', updateScale);
+    window.addEventListener('DOMContentLoaded', updateScale);
+  })();
+
+  const scaleX = window.innerWidth / 1920;
+  const scaleY = window.innerHeight / 1080;
+  const scale = Math.min(scaleX, scaleY);
+  const offsetX = (window.innerWidth - 1920 * scale) / 2;
+  const offsetY = (window.innerHeight - 1080 * scale) / 2;
+
+  const footer = document.querySelector('.site-footer');
+  if (footer) {
+    footer.style.transform = `scale(${scale})`;
+    footer.style.transformOrigin = 'bottom right';
+    footer.style.right = `${20 * scale + offsetX}px`;
+    footer.style.bottom = `${20 * scale + offsetY}px`;
+  }
+</script>
+</div>
+<footer class="site-footer">
+  <a href="Update Certex VPN Clients.html" class="iperf-link">Iperf</a>
+</footer>
+</body>
+</html>

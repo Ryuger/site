@@ -1,0 +1,958 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Update Certex VPN Clients</title>
+    
+    <link rel="stylesheet" href="styles-ie.css">
+    
+    <style>
+        @-webkit-keyframes slideIn {
+            from { opacity: 0; -webkit-transform: translateY(20px); transform: translateY(20px); }
+            to { opacity: 1; -webkit-transform: translateY(0); transform: translateY(0); }
+        }
+        @keyframes slideIn {
+            from { opacity: 0; -webkit-transform: translateY(20px); transform: translateY(20px); }
+            to { opacity: 1; -webkit-transform: translateY(0); transform: translateY(0); }
+        }
+        @-webkit-keyframes cardReveal {
+            from { opacity: 0; -webkit-transform: scale(0.95); transform: scale(0.95); }
+            to { opacity: 1; -webkit-transform: scale(1); transform: scale(1); }
+        }
+        @keyframes cardReveal {
+            from { opacity: 0; -webkit-transform: scale(0.95); transform: scale(0.95); }
+            to { opacity: 1; -webkit-transform: scale(1); transform: scale(1); }
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: -webkit-box;
+            display: -ms-flexbox;
+            display: flex;
+            -webkit-box-orient: vertical;
+            -webkit-box-direction: normal;
+                -ms-flex-direction: column;
+                    flex-direction: column;
+            -webkit-box-align: center;
+                -ms-flex-align: center;
+                    align-items: center;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: -webkit-linear-gradient(315deg, #e6f0fa, #f9f9f9);
+            background: linear-gradient(135deg, #e6f0fa, #f9f9f9);
+            color: #1f2937;
+            opacity: 0;
+            -webkit-transition: opacity 0.5s ease;
+            transition: opacity 0.5s ease;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .portal-container {
+            position: relative;
+            margin: 1rem auto;
+            width: 820px;
+            height: 100px;
+            display: -webkit-box;
+            display: -ms-flexbox;
+            display: flex;
+            -webkit-box-pack: center;
+                -ms-flex-pack: center;
+                    justify-content: center;
+            -webkit-box-align: center;
+                -ms-flex-align: center;
+                    align-items: center;
+            -webkit-transform: translateZ(0);
+                    transform: translateZ(0);
+        }
+
+        canvas {
+            position: absolute;
+            left: 50%;
+            -webkit-transform: translateX(-50%);
+                    transform: translateX(-50%);
+        }            .admin-box ul {
+                display: -ms-grid;
+                display: grid;
+                container-type: inline-size;
+                -ms-grid-columns: 10fr 4px 1fr 4px 1fr 4px 1fr;
+                grid-template-columns: 10fr 1fr 1fr 1fr;
+                gap: 4px;
+                list-style-type: none;
+                -webkit-box-pack: center;
+                -ms-flex-pack: center;
+                justify-content: center;
+                padding: 0;
+                height: 300px;
+                width: 820px;
+                max-width: 820px;
+            -webkit-transition: grid-template-columns var(--speed) var(--easing);
+            -o-transition: grid-template-columns var(--speed) var(--easing);
+            transition: grid-template-columns var(--speed) var(--easing);
+            margin: auto;
+            position: relative;
+        }
+
+        @media (max-width: 840px) {
+            .portal-container {
+                width: 820px;
+                overflow: hidden;
+            }
+            canvas {
+                width: 800px;
+            }
+            .admin-box ul {
+                width: 820px;
+            }
+            body {
+                width: 820px;
+                margin: 0 auto;
+                overflow-x: auto;
+            }
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2rem;
+            }
+            h2.section-title {
+                font-size: 1.75rem;
+            }
+            .container {
+                padding: 1rem;
+            }
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            .admin-controls.active {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+        .portal {
+            position: absolute;
+            margin-top: 0px;
+            height: clamp(60px, 15vw, 100px);
+            width: clamp(12px, 3vw, 20px);
+            border-radius: 50%;
+        }
+        .portal:before, .portal:after {
+            content: '';
+            position: absolute;
+            top: -28px;
+            right: 0;
+            bottom: 28px;
+            left: 0;
+            border-radius: 50%;
+        }
+        .portal.blue {
+            left: 100px;
+            top: 50px;
+        }
+        .portal.blue:before {
+            border-left: 4px solid dodgerblue;
+            background: linear-gradient(to right, rgba(30,144,255,.5), transparent);
+            z-index: 3;
+        }
+        .portal.blue:after {
+            border-right: 4px solid dodgerblue;
+            box-shadow: 0 0 40px dodgerblue;
+            z-index: 0;
+        }
+        .portal.red {
+            right: 100px;
+            top: 50px;
+        }
+        .portal.red:before {
+            border-left: 4px solid orangered;
+            box-shadow: 0 0 40px orangered;
+            z-index: 0;
+        }
+        .portal.red:after {
+            border-right: 4px solid orangered;
+            background: linear-gradient(to left, rgba(255,69,0,.5), transparent);
+            z-index: 3;
+        }
+        .shade {
+            position: absolute;
+            width: 100px;
+            height: 200%;
+            top: 50%;
+            margin-top: -25%;
+            background: #333;
+            z-index: 2;
+        }
+        .shade.left {
+            right: 100%;
+            margin-right: -10px;
+        }
+        .shade.right {
+            left: 100%;
+            margin-left: -10px;
+        }
+        @media (max-width: 768px) {
+            .portal.blue {
+                left: 10vw;
+            }
+            .portal.red {
+                right: 10vw;
+            }
+            canvas {
+                width: 90vw;
+                height: auto;
+            }
+        }
+        @media (max-width: 480px) {
+            .portal {
+                height: 60px;
+                width: 12px;
+            }
+        }
+        .portal-container {
+            position: relative;
+            margin: 0;
+            width: 800px;
+            height: 200px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        canvas {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            margin: 0;
+        }
+        .speed-measure-btn {
+            display: inline-block;
+            margin: 8px auto 0;
+            padding: 8px 16px;
+            background-color: #2563eb;
+            color: #ffffff !important;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .speed-measure-btn:hover {
+            background-color: #1d4ed8;
+        }
+        .buttons-container {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            flex-direction: row;
+        }
+        .portal-container {
+            position: relative;
+            margin: 1rem auto;
+            width: 800px;
+            height: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        canvas {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .portal {
+            position: absolute;
+            margin-top: 0px;
+            height: clamp(60px, 15vw, 100px);
+            width: clamp(12px, 3vw, 20px);
+            border-radius: 50%;
+            z-index: 10;
+        }
+        .portal.blue {
+            left: 50%;
+            transform: translateX(-200px);
+            top: 50px;
+        }
+        .portal.red {
+            left: 50%;
+            transform: translateX(200px);
+            top: 50px;
+        }
+        @media (max-width: 840px) {
+            .portal-container {
+                width: 100%;
+                overflow: hidden;
+            }
+            canvas {
+                width: 100%;
+                max-width: 800px;
+            }
+        }
+
+        @layer normalize, base, demo;
+        /* Удаляем @layer, так как он может не поддерживаться в старых браузерах */
+            .admin-box {
+                background: transparent;
+                border-radius: 8px;
+                margin: 1rem auto;
+                max-width: 960px;
+                width: 100%;
+                opacity: 0;
+                -webkit-animation: cardReveal 0.6s ease-out forwards;
+                animation: cardReveal 0.6s ease-out forwards;
+                -webkit-animation-delay: 0.3s;
+                animation-delay: 0.3s;
+                position: relative;
+            }
+
+            .admin-box .header-container {
+                display: flex;
+                flex-direction: column;
+                gap: 0.2rem;
+                align-items: center;
+                margin-bottom: 1rem;
+            }
+            .admin-box h1.fluid {
+                --font-size-min: 2;
+                --font-level: 1.25;
+                font-family: monospace;
+                opacity: 0.8;
+                font-weight: 400;
+                color: #1f2937;
+                text-align: center;
+            }
+            .admin-box h3 {
+                white-space: nowrap;
+                margin: 0;
+            }
+            .admin-box li :is(svg, h3) {
+                opacity: 0.6;
+                transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            .admin-box li :is(a, p) {
+                opacity: 0;
+                transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+                width: fit-content;
+            }
+            .admin-box li img {
+                filter: grayscale(1) brightness(1.2);
+                scale: 1.1;
+                transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+                transform: translateZ(0);
+                backface-visibility: hidden;
+            }
+            .admin-box [data-active='true'] :is(a, p, h3, svg) {
+                opacity: var(--opacity, 1);
+                transform: translateZ(0) scale(1);
+            }
+            .admin-box [data-active='true'] :is(a, p) {
+                transition-delay: 0.15s;
+                transform: translateX(0);
+            }
+            .admin-box [data-active='true'] img {
+                filter: grayscale(0) brightness(1);
+                scale: 1;
+                transition-delay: 0.15s;
+            }
+            .admin-box article {
+                width: 100%; /* Фолбэк */
+                width: calc(var(--article-width, 594) * 1px);
+                height: 100%;
+                position: absolute;
+                top: 0;
+                left: 0;
+                display: -webkit-box;
+                display: -ms-flexbox;
+                display: flex;
+                -webkit-box-orient: vertical;
+                -webkit-box-direction: normal;
+                -ms-flex-direction: column;
+                flex-direction: column;
+                -webkit-box-pack: end;
+                -ms-flex-pack: end;
+                justify-content: flex-end;
+                gap: 1rem;
+                padding: 1rem calc(2rem * 0.5 - 9px) 2rem;
+                overflow: hidden;
+                background: rgba(255, 255, 255, 0.9);
+                color: #333;
+                -webkit-box-sizing: border-box;
+                box-sizing: border-box;
+            }
+            .admin-box article h3 {
+                position: absolute;
+                top: 1rem;
+                left: 1rem; /* Фолбэк */
+                left: calc(var(--base, 2rem) * 0.5);
+                -webkit-transform-origin: 0 50%;
+                transform-origin: 0 50%;
+                -webkit-transform: rotate(90deg);
+                transform: rotate(90deg);
+                font-size: 1rem;
+                font-weight: 500;
+                margin: 0;
+                white-space: nowrap;
+            }
+            .admin-box article svg {
+                width: 18px;
+                fill: none;
+                stroke: #333;
+            }
+            .admin-box article p {
+                font-size: 13px;
+                text-wrap: balance;
+                line-height: 1.25;
+                --opacity: 0.8;
+            }
+            .admin-box article a {
+                line-height: 1;
+                color: #333;
+            }
+            .admin-box article a:is(:focus-visible, :hover) {
+                outline: none;
+            }
+            .admin-box article a:is(:focus-visible, :hover) span {
+                text-decoration: underline;
+                text-underline-offset: 4px;
+            }
+            .admin-box article a span {
+                display: inline-block;
+                line-height: 18px;
+                translate: calc(var(--base) * 0.5);
+                font-weight: 500;
+            }
+            .admin-box article img.profile-bg {
+                position: absolute;
+                pointer-events: none;
+                top: 0;
+                right: 0;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                max-width: 100%;
+                max-height: 100%;
+                -o-object-fit: cover;
+                   object-fit: cover;
+                /* Фолбэк для старых браузеров */
+                background-size: cover;
+                background-position: center;
+                /* Маска с фолбэком */
+                -webkit-mask-image: -webkit-radial-gradient(100% 0, 100% 100%, #fff, transparent);
+                mask-image: radial-gradient(100% 100% at 100% 0, #fff, transparent);
+            }
+            
+            /* Фолбэк для IE и старых браузеров */
+            @media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
+                .admin-box article img.profile-bg {
+                    width: auto;
+                    height: 100%;
+                    left: 50%;
+                    -webkit-transform: translateX(-50%);
+                        -ms-transform: translateX(-50%);
+                            transform: translateX(-50%);
+                }
+            }                    
+            
+            .admin-box ul {
+                /* Фолбэк для старых браузеров */
+                display: -webkit-box;
+                display: -ms-flexbox;
+                display: flex;
+                -webkit-box-pack: center;
+                    -ms-flex-pack: center;
+                        justify-content: center;
+                /* Современные браузеры */
+                display: -ms-grid;
+                display: grid;
+                -ms-grid-columns: 10fr 4px 1fr 4px 1fr 4px 1fr;
+                grid-template-columns: 10fr 40px 40px 40px;
+                gap: 4px;
+                transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+                list-style-type: none;
+                padding: 0;
+                height: 300px;
+                width: 820px;
+                max-width: calc(100% - 4rem);
+                -webkit-transition: grid-template-columns var(--speed) var(--easing);
+                -o-transition: grid-template-columns var(--speed) var(--easing);
+                transition: grid-template-columns var(--speed) var(--easing);
+                margin: auto;
+                position: relative;
+            }
+            .admin-box li {
+                background: transparent;
+                position: relative;
+                overflow: hidden;
+                min-width: 40px;
+                border-radius: 8px;
+                border: 1px solid #ccc;
+                box-sizing: border-box;
+                transform: translateZ(0);
+                transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+                will-change: width, opacity;
+                -webkit-backface-visibility: hidden;
+                backface-visibility: hidden;
+            }
+
+            .admin-box li[data-active="false"] {
+                transform: translateZ(0);
+                opacity: 0.95;
+            }
+
+            .admin-box li[data-active="true"] {
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+                transform: translateZ(0);
+                max-width: none !important;
+                opacity: 1;
+            }
+
+            .admin-box ul {
+                display: grid;
+                grid-template-columns: 10fr 1fr 1fr 1fr;
+                gap: 4px;
+                list-style-type: none;
+                padding: 0;
+                height: 300px;
+                width: 820px;
+                max-width: calc(100% - 4rem);
+                transition: grid-template-columns 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+                margin: auto;
+                position: relative;
+                perspective: 1000px;
+            }
+
+            .admin-box article {
+                transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+                backface-visibility: hidden;
+            }
+
+            .admin-box li :is(svg, h3, a, p, img) {
+                transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+
+        @layer base {
+            :root {
+                --font-size-min: 16;
+                --font-size-max: 20;
+                --font-ratio-min: 1.2;
+                --font-ratio-max: 1.33;
+                --font-width-min: 375;
+                --font-width-max: 1500;
+                --gap: 8px;
+                --base: clamp(2rem, 8cqi, 80px);
+                --easing: linear(
+                    0 0%,
+                    0.1538 4.09%,
+                    0.2926 8.29%,
+                    0.4173 12.63%,
+                    0.5282 17.12%,
+                    0.6255 21.77%,
+                    0.7099 26.61%,
+                    0.782 31.67%,
+                    0.8425 37%,
+                    0.8887 42.23%,
+                    0.9257 47.79%,
+                    0.9543 53.78%,
+                    0.9752 60.32%,
+                    0.9883 67.11%,
+                    0.9961 75%,
+                    1 100%
+                );
+                --speed: 0.6s;
+            }
+            .fluid {
+                --fluid-min: calc(
+                    var(--font-size-min) * pow(var(--font-ratio-min), var(--font-level, 0))
+                );
+                --fluid-max: calc(
+                    var(--font-size-max) * pow(var(--font-ratio-max), var(--font-level, 0))
+                );
+                --fluid-preferred: calc(
+                    (var(--fluid-max) - var(--fluid-min)) /
+                    (var(--font-width-max) - var(--font-width-min))
+                );
+                --fluid-type: clamp(
+                    (var(--fluid-min) / 16) * 1rem,
+                    ((var(--fluid-min) / 16) * 1rem) -
+                    (((var(--fluid-preferred) * var(--font-width-min)) / 16) * 1rem) +
+                    (var(--fluid-preferred) * var(--variable-unit, 100vi)),
+                    (var(--fluid-max) / 16) * 1rem
+                );
+                font-size: var(--fluid-type);
+            }
+        }
+        /* Adjust spacing for SVG and text */
+        article {
+            padding-bottom: 2rem; /* Increase bottom padding */
+        }
+        
+        /* Фиксированные размеры для карт */
+        .admin-box ul {
+            gap: 4px !important;
+        }
+        
+        .admin-box li {
+            width: 100%;
+            min-width: 40px;
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateZ(0);
+            will-change: width;
+            backface-visibility: hidden;
+        }
+        
+        .admin-box li[data-active="true"] {
+            max-width: none !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        article a {
+            bottom: 2rem; /* Adjust position of the link */
+        }
+
+        .sr1 {
+            position: absolute; /* или fixed, если относительно окна браузера */
+            text-align: right; /* выравнивание текста по горизонтали */
+            rotate: 270deg; /* поворот текста */
+            font-size: 0.8rem;
+            color: #333;
+        }
+
+        .w9 {
+            position: absolute;
+            bottom: 60px;
+            right: 20px;
+            font-size: 0.8rem;
+            color: #333;
+            margin: 0;
+            z-index: 2;
+            margin-bottom: -55px;
+            margin-right: 415px;
+        }
+
+        .w10 {
+            display: block;
+            text-align: right;
+            margin-top: 5px;
+            position: relative;
+            z-index: 2;
+        }
+
+        span {
+            margin-right: -150px;
+            margin-top: 10px;
+        }
+
+        h4.section-title {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #1e40af;
+            margin: 0;
+            padding: 1px 0;
+            text-align: left;
+            animation: slideIn 0.8s ease-out 0.3s;
+            animation-fill-mode: backwards;
+            line-height: 1;
+            margin-left: 45px;
+            margin-top: 40px;
+        }
+
+        #employees {
+            margin-bottom: 1rem;
+        }
+
+        #employees .section-title + .section-title {
+            margin-top: -1px;
+        }
+
+        footer {
+            width: 100%;
+            text-align: center;
+            padding: 1rem 0;
+        }
+
+        footer p {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        em {
+            font-style: italic;
+            font-weight: 400;
+            color: #4b5563;
+            letter-spacing: 0.02em;
+            transition: color 0.3s ease;
+            position: relative;
+            display: inline-block;
+            margin-top: 5px;
+        }
+
+        em:hover {
+            color: #2563eb;
+        }
+
+        em::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: #2563eb;
+            transition: width 0.3s ease;
+        }
+
+        em:hover::after {
+            width: 100%;
+        }
+    </style>
+</head>
+<body style="opacity: 1;">
+    <div class="container">
+        <main>
+            <section id="employees">
+                <h4 class="section-title">"ҰАТ" АҚ компаниясының СКЗИ сервисінің әкімшілері</h4>
+                <h4 class="section-title">Administrators of the service CPMI of the company JSC "NIT"</h4>
+                <h4 class="section-title">Администраторы сервиса СКЗИ АО "НИТ"</h4>
+                <div class="admin-box">
+                    <div class="header-container">
+                    </div>
+                    <ul style="--article-width: 594; grid-template-columns: 10fr 1fr 1fr 1fr; gap: 4px;">
+                        <li data-active="true">
+                            <article>
+                                <h3>Аскар Муханов</h3>
+                                <p class="w9">Номер: 6135 <a href="./AskarSpeed.zip" class="w10"><span>Загрузить</span></a></p>
+                                <img src="./img/star.svg" alt="Star icon" style="width: 25px; height: 35px; stroke: #333; margin-bottom: -40px; margin-left: 8px;">
+                                <p></p>
+                                <img src="./img/1.jpg" alt="Security tech" class="profile-bg">
+                            </article>
+                        </li>
+                        <li data-active="false">
+                            <article>
+                                <h3>Алмас Нығметоллаев</h3>
+                                <p class="w9">Номер: 6209 <a href="./AlmasSpeed.zip" class="w10"><span>Загрузить</span></a></p>
+                                <img src="./img/star.svg" alt="Star icon" style="width: 25px; height: 35px; stroke: #333; margin-bottom: -40px; margin-left: 8px;">
+                                <p></p>
+                                <img src="./img/2.png" alt="Encryption setup" class="profile-bg">
+                            </article>
+                        </li>
+                        <li data-active="false">
+                            <article>
+                                <h3>Дулат Мұсатай</h3>
+                                <p class="w9">Номер: 3253 <a href="./DulatSpeed.zip" class="w10"><span>Загрузить</span></a></p>
+                                <img src="./img/star.svg" alt="Star icon" style="width: 25px; height: 35px; stroke: #333; margin-bottom: -40px; margin-left: 8px;">
+                                <p></p>
+                                <img src="./img/3.png" alt="Data security" class="profile-bg">
+                            </article>
+                        </li>
+                        <li data-active="false">
+                            <article>
+                                <h3>Анар Бекетова</h3>
+                                <p class="w9">Номер: 6994 <a href="./AnaraSpeed.zip" class="w10"><span>Загрузить</span></a></p>
+                                <img src="./img/star.svg" alt="Star icon" style="width: 25px; height: 35px; stroke: #333; margin-bottom: -40px; margin-left: 8px;">
+                                <p></p>
+                                <img src="./img/4.jpg" alt="System integration" class="profile-bg">
+                            </article>
+                        </li>
+                    </ul>
+                </div>
+            </section>
+
+            <div class="portal-container">
+                <div class="portal blue"></div>
+                <div class="portal red"></div>
+                <canvas id="canvas" width="800" height="155"></canvas>
+            </div>
+        </main>
+
+        <footer>
+            <p><em>Thank you for trusting Certex forwal connectivity</em></p>
+        </footer>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        const portalLeft = { x: canvas.width * 0.3, y: 100, radius: 20 };
+        const portalRight = { x: canvas.width * 0.7, y: 100, radius: 20 };
+
+        const throwSpeed = 2.5;
+        const attractionStrength = 0.04;
+        const waitFrames = 60;
+        const friction = 0.99;
+        const stopThreshold = 0.1;
+        const pipeTop = 50;
+        const pipeBottom = 150;
+        const folderWidth = 20;
+        const folderHeight = 20;
+
+        const folderImage = new Image();
+        folderImage.src = './folder-invoices.png';
+
+        const balls = [];
+        let canThrowNew = true;
+
+        function addNewBall() {
+            if (canThrowNew) {
+                balls.push({
+                    x: portalLeft.x,
+                    y: portalLeft.y,
+                    vx: throwSpeed + (Math.random() * 2 - 1),
+                    vy: Math.random() * 2 - 1,
+                    isThrowing: true,
+                    isWaiting: false,
+                    waitTime: 0
+                });
+                canThrowNew = false;
+            }
+        }
+
+        function drawFolder(ball) {
+            if (folderImage.complete) {
+                ctx.save();
+                ctx.translate(ball.x, ball.y);
+                ctx.drawImage(folderImage, -folderWidth / 2, -folderHeight / 2, folderWidth, folderHeight);
+                ctx.restore();
+            }
+        }
+
+        function drawPipes() {
+            const gradient1 = ctx.createLinearGradient(0, 0, canvas.width, 0);
+            gradient1.addColorStop(0, 'rgba(128, 128, 128, 0)');
+            gradient1.addColorStop(0.1, 'rgba(128, 128, 128, 1)');
+            gradient1.addColorStop(0.9, 'rgba(128, 128, 128, 1)');
+            gradient1.addColorStop(1, 'rgba(128, 128, 128, 0)');
+
+            ctx.strokeStyle = gradient1;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(0, pipeTop);
+            ctx.lineTo(canvas.width, pipeTop);
+            ctx.moveTo(0, pipeBottom);
+            ctx.lineTo(canvas.width, pipeBottom);
+            ctx.stroke();
+        }
+
+        function updateBall(ball) {
+            if (ball.isThrowing) {
+                ball.vx *= friction;
+                ball.vy *= friction;
+                ball.x += ball.vx;
+                ball.y += ball.vy;
+                if (ball.y - folderHeight / 2 < pipeTop) {
+                    ball.y = pipeTop + folderHeight / 2;
+                    ball.vy = -ball.vy;
+                }
+                if (ball.y + folderHeight / 2 > pipeBottom) {
+                    ball.y = pipeBottom - folderHeight / 2;
+                    ball.vy = -ball.vy;
+                }
+                if (Math.abs(ball.vx) < stopThreshold && Math.abs(ball.vy) < stopThreshold) {
+                    ball.isThrowing = false;
+                    ball.isWaiting = true;
+                    ball.waitTime = waitFrames;
+                }
+            } else if (ball.isWaiting) {
+                ball.waitTime--;
+                if (ball.waitTime <= 0) {
+                    ball.isWaiting = false;
+                }
+            } else {
+                const dx = portalRight.x - ball.x;
+                const dy = portalRight.y - ball.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                if (distance > 0) {
+                    const ax = attractionStrength * dx / distance;
+                    const ay = attractionStrength * dy / distance;
+                    ball.vx += ax;
+                    ball.vy += ay;
+                }
+                ball.x += ball.vx;
+                ball.y += ball.vy;
+                if (ball.y - folderHeight / 2 < pipeTop) {
+                    ball.y = pipeTop + folderHeight / 2;
+                    ball.vy = -ball.vy;
+                }
+                if (ball.y + folderHeight / 2 > pipeBottom) {
+                    ball.y = pipeBottom - folderHeight / 2;
+                    ball.vy = -ball.vy;
+                }
+                if (distance < portalRight.radius) {
+                    ball.x = portalLeft.x;
+                    ball.y = portalLeft.y;
+                    ball.vx = throwSpeed + (Math.random() * 2 - 1);
+                    ball.vy = Math.random() * 2 - 1;
+                    ball.isThrowing = true;
+                    canThrowNew = true;
+                }
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawPipes();
+
+            balls.forEach(ball => {
+                drawFolder(ball);
+                updateBall(ball);
+            });
+
+            if (balls.length < 5) {
+                addNewBall();
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        folderImage.onload = function() {
+            animate();
+        };
+    </script>
+
+    <script>
+        // Admin box interaction
+        const adminList = document.querySelector('.admin-box ul');
+        const adminItems = adminList.querySelectorAll('li');
+        const setIndex = (event) => {
+            const closest = event.target.closest('li');
+            if (closest) {
+                const index = [...adminItems].indexOf(closest);
+                
+                // Add a small delay to smooth out rapid transitions
+                requestAnimationFrame(() => {
+                    const cols = new Array(adminList.children.length)
+                        .fill()
+                        .map((_, i) => {
+                            const isActive = index === i;
+                            adminItems[i].dataset.active = isActive.toString();
+                            return isActive ? '10fr' : '1fr';
+                        })
+                        .join(' ');
+                    adminList.style.setProperty('grid-template-columns', cols);
+                });
+            }
+        };
+        adminList.addEventListener('focus', setIndex, true);
+        adminList.addEventListener('click', setIndex);
+        adminList.addEventListener('pointermove', setIndex);
+        const resync = () => {
+            const w = Math.max(
+                ...[...adminItems].map((i) => {
+                    return i.offsetWidth;
+                })
+            );
+            adminList.style.setProperty('--article-width', w);
+        };
+        window.addEventListener('resize', resync);
+        resync();
+    </script>
+
+</body>
+</html>

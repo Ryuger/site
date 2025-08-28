@@ -1,0 +1,207 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vanta Globe Animation</title>
+  <script src="./three.min.js.загрузка"></script>
+  <script src="./vanta.globe.min.js.загрузка"></script>
+  <style>
+    body {
+      margin: 0;
+      overflow-x: hidden;
+      background: #000000;
+      display: flex;
+      height: 100vh;
+    }
+    
+    #vanta-bg {
+      width: 70vw;
+      height: 100vh;
+      position: relative;
+    }
+    
+    .cards-container {
+      width: 30vw;
+      height: 100vh;
+      padding: 20px;
+      box-sizing: border-box;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-gap: 15px;
+      align-content: start;
+      overflow-y: auto;
+    }
+    
+    .card {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      padding: 15px;
+      color: white;
+      backdrop-filter: blur(10px);
+      transition: transform 0.3s ease;
+    }
+    
+    .card:hover {
+      transform: translateY(-5px);
+      background: rgba(255, 255, 255, 0.15);
+    }
+    
+    .card h3 {
+      margin: 0 0 10px 0;
+      font-size: 14px;
+      color: #3f83f8;
+    }
+    
+    .card p {
+      margin: 0;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+    
+    .settings {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      z-index: 10;
+    }
+    
+    .settings select {
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      border: 1px solid #3f83f8;
+      padding: 5px;
+      border-radius: 4px;
+    }
+    
+    /* Настройка для 3 колонок */
+    .cards-container.three-columns {
+      grid-template-columns: 1fr 1fr 1fr;
+      grid-gap: 10px;
+    }
+    
+    .cards-container.three-columns .card {
+      padding: 10px;
+    }
+    
+    .cards-container.three-columns .card h3 {
+      font-size: 12px;
+    }
+    
+    .cards-container.three-columns .card p {
+      font-size: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div id="vanta-bg">
+    <canvas class="vanta-canvas" style="display: block; position: absolute; z-index: 0; top: 0px; left: 0px; width: 100%; height: 100%;"></canvas>
+  </div>
+  
+  <div class="cards-container" id="cardsContainer">
+    <div class="settings">
+      <select id="columnsSelect" onchange="changeColumns()">
+        <option value="2">2 колонки</option>
+        <option value="3">3 колонки</option>
+      </select>
+    </div>
+    
+    <div class="card">
+      <h3>Карта 1</h3>
+      <p>Описание первой карты с информацией о продукте или услуге.</p>
+    </div>
+    
+    <div class="card">
+      <h3>Карта 2</h3>
+      <p>Описание второй карты с дополнительными деталями.</p>
+    </div>
+    
+    <div class="card">
+      <h3>Карта 3</h3>
+      <p>Третья карта с важной информацией для пользователей.</p>
+    </div>
+    
+    <div class="card">
+      <h3>Карта 4</h3>
+      <p>Четвертая карта с описанием функциональности.</p>
+    </div>
+    
+    <div class="card">
+      <h3>Карта 5</h3>
+      <p>Пятая карта с дополнительным контентом.</p>
+    </div>
+    
+    <div class="card">
+      <h3>Карта 6</h3>
+      <p>Шестая карта для демонстрации сетки.</p>
+    </div>
+  </div>
+
+  <script>
+    // Загружаем настройку колонок из localStorage (не кешируем карты)
+    function loadColumnSetting() {
+      const savedColumns = localStorage.getItem('columns-setting');
+      if (savedColumns) {
+        document.getElementById('columnsSelect').value = savedColumns;
+        changeColumns();
+      }
+    }
+    
+    // Изменение количества колонок
+    function changeColumns() {
+      const select = document.getElementById('columnsSelect');
+      const container = document.getElementById('cardsContainer');
+      const columns = select.value;
+      
+      // Сохраняем только настройку колонок
+      localStorage.setItem('columns-setting', columns);
+      
+      if (columns === '3') {
+        container.classList.add('three-columns');
+      } else {
+        container.classList.remove('three-columns');
+      }
+    }
+    
+    // Функция для получения карт с сервера (имитация)
+    function loadCardsFromServer() {
+      // Здесь будет запрос к серверу для получения актуальных карт
+      // Карты НЕ кешируются - всегда загружаются с сервера
+      console.log('Загрузка карт с сервера...');
+    }
+    
+    document.addEventListener("DOMContentLoaded", function () {
+      // Инициализация Vanta.js с кешированием цвета фона
+      const savedBackgroundColor = localStorage.getItem('background-color') || '#000000';
+      
+      VANTA.GLOBE({
+        el: "#vanta-bg",
+        mouseControls: true,
+        touchControls: true,
+        gyroControls: false,
+        minHeight: 200.0,
+        minWidth: 200.0,
+        scale: 1.2,
+        scaleMobile: 1.2,
+        color: 0x3f83f8,
+        backgroundColor: parseInt(savedBackgroundColor.replace('#', '0x')),
+        size: 1.0,
+        showDots: false,
+        showLines: false,
+        points: 0
+      });
+      
+      // Сохраняем цвет фона в localStorage
+      localStorage.setItem('background-color', savedBackgroundColor);
+      
+      // Загружаем настройки колонок
+      loadColumnSetting();
+      
+      // Загружаем карты с сервера (без кеширования)
+      loadCardsFromServer();
+    });
+  </script>
+</body>
+</html>

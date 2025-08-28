@@ -1,0 +1,37 @@
+
+{
+  "software": [
+    {
+      "name": "Certex",
+      "version": "2.1.2.4",
+      "description": "Certex VPN Client",
+      "downloadLink": "./SetupCertexVpnClient_bspd_10.61.40.56_2.1.2.4.exe",
+      "fileSize": 13355424,
+      "icon": ""
+    },
+    {
+      "name": "Tumar",
+      "version": "6.2.3.3",
+      "description": "Основной",
+      "downloadLink": "./SetupCryptoSocket_release_20250826121103.exe",
+      "fileSize": 66373760,
+      "icon": ""
+    },
+    {
+      "name": "Chrome",
+      "version": "Enterprise Edition",
+      "description": "",
+      "downloadLink": "./GoogleChromeStandaloneEnterprise64.msi",
+      "fileSize": 72278016,
+      "icon": ""
+    },
+    {
+      "name": "Инструкция",
+      "version": "1.0",
+      "description": "",
+      "downloadLink": "./Instruction_Certex_zip.zip",
+      "fileSize": 637653,
+      "icon": ""
+    }
+  ]
+}
